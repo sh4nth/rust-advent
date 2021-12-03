@@ -1,3 +1,24 @@
+use std::fs::File;
+use std::io::{self, BufRead};
+use std::path::Path;
+use itertools::Itertools;
+
 fn main() {
-    println!("Problem 1!");
+    // File hosts must exist in current path before this produces output
+    let numbers= read_lines("./inputs/input1")
+      .expect("File read error")
+      .map(|s|s.expect("io error").parse::<i32>().expect("string parse error"));
+
+    let number_of_increases = numbers.tuple_windows()
+      .filter(|(prev,next)| next > prev)
+      .count();
+    println!("Answer = {}", number_of_increases);
+}
+
+// The output is wrapped in a Result to allow matching on errors
+// Returns an Iterator to the Reader of the lines of the file.
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+where P: AsRef<Path>, {
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
 }
